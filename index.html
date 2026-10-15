@@ -49,6 +49,26 @@
     @media(max-width:560px){.documents-grid{grid-template-columns:1fr}.studio-saved-row{align-items:flex-start}.studio-saved-actions{flex-direction:column}.admin-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media print{body *{visibility:hidden!important}#draftPrintSheet,#draftPrintSheet *{visibility:visible!important}#draftPrintSheet{position:absolute!important;inset:0!important;width:100%!important;background:#fff!important;padding:18mm!important;color:#111!important}#draftEditor{min-height:auto!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;font:12pt/1.6 Georgia,serif!important}#draftEditor h1,#draftEditor h2,#draftEditor h3{color:#111!important;break-after:avoid}#draftEditor p{orphans:3;widows:3}#draftPrintImages{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8mm;margin-bottom:8mm}#draftPrintImages img{width:100%;max-height:55mm;object-fit:cover;break-inside:avoid}}
   </style>
+  <style>
+    .calendar-agenda{display:flex;align-items:center;gap:8px;margin-top:10px;padding:9px 10px;border-radius:9px;background:#efede4;color:#596457;font-size:11px;min-height:39px}
+    .calendar-agenda-label{font-weight:800;color:#294536}
+    .calendar-agenda-dot{width:6px;height:6px;flex:none;border-radius:50%;background:#a14e31}
+    .calendar-agenda-text{flex:1;min-width:0;transition:opacity .22s ease}
+    .calendar-agenda-count{font-size:10px;color:#858378;white-space:nowrap}
+    .calendar-day-dots{position:absolute;bottom:2px;left:50%;display:flex;gap:2px;transform:translateX(-50%)}
+    .calendar-day-dot{width:5px;height:5px;border-radius:50%}
+    .calendar-day-dot.article{background:#eab308}
+    .calendar-day-dot.media{background:#16a34a}
+    .calendar-day-dot.link{background:#2563eb}
+    .calendar-legend{display:flex;flex-wrap:wrap;gap:7px 12px}
+    .calendar-legend-item{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+    .calendar-legend-dot{width:7px;height:7px;border-radius:50%}
+    .calendar-legend-dot.article{background:#eab308}
+    .calendar-legend-dot.media{background:#16a34a}
+    .calendar-legend-dot.link{background:#2563eb}
+    .cal-day.has:after,.cal-day.sel:after{display:none}
+    @media(prefers-reduced-motion:reduce){.calendar-agenda-text{transition:none}}
+  </style>
 </head>
 <body>
 <div class="app-shell">
@@ -76,14 +96,14 @@
       <div class="ticker" aria-live="polite"><span class="ticker-label">Catatan singkat</span><span class="ticker-dot"></span><span class="ticker-text" id="tickerText">Satu hal baik hari ini layak disimpan.</span></div>
       <div class="home-grid">
         <section class="panel"><div class="panel-head"><h2>Artikel terbaru</h2><button class="text-btn" data-go="articles">Lihat semua →</button></div><div id="recentList" class="article-list"></div></section>
-        <section class="panel"><div class="panel-head"><h2>Arsip Digital</h2><button class="text-btn" data-go="archive">Buka arsip →</button></div><div id="homeCalendar"></div><div class="calendar-foot" id="homeCalendarFoot">● &nbsp;Tanggal bertanda memiliki catatan.</div></section>
+        <section class="panel"><div class="panel-head"><h2>Arsip Digital</h2><button class="text-btn" data-go="archive">Buka arsip →</button></div><div id="homeCalendar"></div><div class="calendar-foot calendar-legend" id="homeCalendarFoot"><span class="calendar-legend-item"><i class="calendar-legend-dot article"></i>Artikel</span><span class="calendar-legend-item"><i class="calendar-legend-dot media"></i>Media/PDF</span><span class="calendar-legend-item"><i class="calendar-legend-dot link"></i>Tautan</span></div></section>
         <section class="panel studio-panel"><div class="panel-head"><h2>Studio AI</h2><span class="status-pill" id="homeAIStatus">Memeriksa AI…</span></div><p class="small muted" style="margin:0 0 12px">Susun bahan artikel menjadi cerita yang bisa kamu tinjau dan edit.</p><button class="tool-card" data-studio="Kliping"><span class="tool-ico">▤</span><span><b>Kliping</b><small>Susun informasi terpilih.</small></span><span>→</span></button><button class="tool-card" data-studio="Jurnal"><span class="tool-ico">▱</span><span><b>Jurnal</b><small>Rangkai catatan secara kronologis.</small></span><span>→</span></button><button class="tool-card" data-studio="Kaleidoskop"><span class="tool-ico">✣</span><span><b>Kaleidoskop</b><small>Lihat sorotan suatu periode.</small></span><span>→</span></button></section>
       </div>
     </section>
 
     <section class="view" id="view-articles"><div class="toolbar"><div><h2 class="section-title">Artikel & dokumentasi</h2><p class="muted small">Bahan yang telah diterbitkan untuk dibaca publik.</p></div><div class="filter-row"><select class="control" id="categoryFilter"><option value="all">Semua kategori</option><option>Kegiatan</option><option>Pertemuan</option><option>Dokumentasi</option></select><select class="control" id="sortFilter"><option value="newest">Tanggal terbaru</option><option value="oldest">Tanggal terlama</option><option value="title">Nama A–Z</option></select></div></div><div id="articleCards" class="cards"></div></section>
 
-    <section class="view" id="view-archive"><div class="toolbar"><div><h2 class="section-title">Arsip Digital</h2><p class="muted small">Pilih tanggal bertanda untuk melihat catatan. Tanggal asli tidak diubah otomatis.</p></div><input type="date" class="control" id="dateJump" aria-label="Cari tanggal"></div><div class="archive-grid"><section class="panel calendar-large"><div id="archiveCalendar"></div><div class="calendar-foot">● &nbsp;Tanggal bertanda berisi kegiatan atau artikel.</div></section><section class="panel day-list" id="dayResults"></section></div></section>
+    <section class="view" id="view-archive"><div class="toolbar"><div><h2 class="section-title">Arsip Digital</h2><p class="muted small">Pilih tanggal bertanda untuk melihat catatan. Tanggal asli tidak diubah otomatis.</p></div><input type="date" class="control" id="dateJump" aria-label="Cari tanggal"></div><div class="archive-grid"><section class="panel calendar-large"><div id="archiveCalendar"></div><div class="calendar-foot calendar-legend"><span class="calendar-legend-item"><i class="calendar-legend-dot article"></i>Artikel</span><span class="calendar-legend-item"><i class="calendar-legend-dot media"></i>Media/PDF</span><span class="calendar-legend-item"><i class="calendar-legend-dot link"></i>Tautan</span></div></section><section class="panel day-list" id="dayResults"></section></div></section>
 
     <section class="view" id="view-media"><div class="toolbar"><div><h2 class="section-title">Media & dokumen</h2><p class="muted small">Foto, video, dan PDF yang sudah diterbitkan.</p></div><span class="status-pill">Konten publik</span></div><div id="mediaGrid" class="library-grid"></div><section class="panel mt-4"><div class="panel-head"><div><h2>Dokumen publik</h2><p class="muted small">PDF dapat dibuka dan diunduh oleh semua pengunjung.</p></div><span class="status-pill" id="documentPublicStatus">Memuat…</span></div><div id="documentsGrid" class="documents-grid" aria-live="polite"></div></section></section>
 
@@ -202,9 +222,9 @@ function createRuangKerjakuEnhancements({
   let mounted = false;
   let agendaEvents = [];
   let agendaIndex = 0;
-  let agendaPaused = false;
   let agendaSignature = '';
   let agendaTimer = null;
+  let agendaTransitionTimer = null;
   let adminDraftRows = [];
   let adminDraftOffset = 0;
   let adminDraftHasMore = false;
@@ -223,7 +243,7 @@ function createRuangKerjakuEnhancements({
     ticker.className = 'calendar-agenda';
     ticker.setAttribute('role', 'group');
     ticker.setAttribute('aria-label', 'Kegiatan pada kalender');
-    ticker.innerHTML = '<span class="calendar-agenda-label">Agenda</span><span class="calendar-agenda-dot" aria-hidden="true"></span><span class="calendar-agenda-text" data-agenda-text aria-live="polite">Memuat kegiatan…</span><span class="calendar-agenda-count" data-agenda-count></span><div class="calendar-agenda-controls"><button type="button" data-agenda-action="prev" aria-label="Kegiatan sebelumnya">‹</button><button type="button" data-agenda-action="pause" aria-label="Jeda running text">Jeda</button><button type="button" data-agenda-action="next" aria-label="Kegiatan berikutnya">›</button></div>';
+    ticker.innerHTML = '<span class="calendar-agenda-label">Agenda</span><span class="calendar-agenda-dot" aria-hidden="true"></span><span class="calendar-agenda-text" data-agenda-text aria-live="polite">Memuat kegiatan…</span><span class="calendar-agenda-count" data-agenda-count></span>';
     calendar.parentElement.insertBefore(ticker, calendar.nextSibling);
   }
 
@@ -346,7 +366,7 @@ function createRuangKerjakuEnhancements({
     $('#adminContentEditForm')?.addEventListener('submit', saveAdminContent);
     document.addEventListener('change', validateReplacementFile);
     document.addEventListener('click', handleClick);
-    agendaTimer = setInterval(advanceAgenda, 6800);
+    agendaTimer = setInterval(advanceAgenda, 5000);
   }
 
   function isPublicRecord(row) {
@@ -358,24 +378,30 @@ function createRuangKerjakuEnhancements({
     const events = [
       ...state.articles.filter(row => isPublicRecord(row) && row.article_date).map(row => ({ date: dateValue(row.article_date), type: 'Artikel', title: row.title })),
       ...state.media.filter(row => isPublicRecord(row) && row.event_date).map(row => ({ date: dateValue(row.event_date), type: row.media_type === 'pdf' ? 'PDF' : row.media_type === 'video' ? 'Video' : 'Media', title: row.title })),
-      ...state.documents.filter(row => isPublicRecord(row) && row.event_date).map(row => ({ date: dateValue(row.event_date), type: 'PDF', title: row.title }))
+      ...state.documents.filter(row => isPublicRecord(row) && row.event_date).map(row => ({ date: dateValue(row.event_date), type: 'PDF', title: row.title })),
+      ...state.links.filter(row => isPublicRecord(row) && row.event_date).map(row => ({ date: dateValue(row.event_date), type: 'Tautan', title: row.title }))
     ].filter(row => row.date.startsWith(monthKey) && row.title)
       .sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title, 'id'));
     return events;
   }
 
-  function renderAgendaText() {
-    if (!agendaEvents.length) {
-      $$('#homeCalendarActivity [data-agenda-text], #archiveCalendarActivity [data-agenda-text]').forEach(el => { el.textContent = 'Belum ada kegiatan terbit pada bulan ini.'; });
-      $$('#homeCalendarActivity [data-agenda-count], #archiveCalendarActivity [data-agenda-count]').forEach(el => { el.textContent = ''; });
-      $$('#homeCalendarActivity [data-agenda-action="pause"], #archiveCalendarActivity [data-agenda-action="pause"]').forEach(el => { el.disabled = true; el.textContent = 'Jeda'; });
-      return;
-    }
-    const item = agendaEvents[agendaIndex % agendaEvents.length];
-    const label = `${safeDateLabel(item.date)} · ${item.type}: ${item.title}`;
-    $$('#homeCalendarActivity [data-agenda-text], #archiveCalendarActivity [data-agenda-text]').forEach(el => { el.textContent = label; });
-    $$('#homeCalendarActivity [data-agenda-count], #archiveCalendarActivity [data-agenda-count]').forEach(el => { el.textContent = `${agendaIndex + 1}/${agendaEvents.length}`; });
-    $$('#homeCalendarActivity [data-agenda-action="pause"], #archiveCalendarActivity [data-agenda-action="pause"]').forEach(el => { el.disabled = agendaEvents.length < 2; el.textContent = agendaPaused ? 'Lanjut' : 'Jeda'; el.setAttribute('aria-label', agendaPaused ? 'Lanjutkan running text' : 'Jeda running text'); });
+  function renderAgendaText(animate = false) {
+    const text = agendaEvents.length
+      ? `${safeDateLabel(agendaEvents[agendaIndex % agendaEvents.length].date)} · ${agendaEvents[agendaIndex % agendaEvents.length].type}: ${agendaEvents[agendaIndex % agendaEvents.length].title}`
+      : 'Belum ada kegiatan terbit pada bulan ini.';
+    const count = agendaEvents.length ? `${agendaIndex + 1}/${agendaEvents.length}` : '';
+    const textElements = $$('#homeCalendarActivity [data-agenda-text], #archiveCalendarActivity [data-agenda-text]');
+    clearTimeout(agendaTransitionTimer);
+    textElements.forEach(el => {
+      if (animate && el.textContent !== text) el.style.opacity = '0';
+      else el.style.opacity = '1';
+    });
+    const update = () => {
+      textElements.forEach(el => { el.textContent = text; el.style.opacity = '1'; });
+      $$('#homeCalendarActivity [data-agenda-count], #archiveCalendarActivity [data-agenda-count]').forEach(el => { el.textContent = count; });
+    };
+    if (animate) agendaTransitionTimer = setTimeout(update, 220);
+    else update();
   }
 
   function renderCalendarActivities(month = state.month) {
@@ -390,9 +416,9 @@ function createRuangKerjakuEnhancements({
   }
 
   function advanceAgenda() {
-    if (agendaPaused || agendaEvents.length < 2 || document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (agendaEvents.length < 2) return;
     agendaIndex = (agendaIndex + 1) % agendaEvents.length;
-    renderAgendaText();
+    renderAgendaText(true);
   }
 
   function decorateArchiveRows() {
@@ -956,14 +982,6 @@ function createRuangKerjakuEnhancements({
   }
 
   function handleClick(event) {
-    const agendaButton = event.target.closest('[data-agenda-action]');
-    if (agendaButton) {
-      const action = agendaButton.dataset.agendaAction;
-      if (action === 'pause') agendaPaused = !agendaPaused;
-      else if (agendaEvents.length) agendaIndex = (agendaIndex + (action === 'next' ? 1 : agendaEvents.length - 1)) % agendaEvents.length;
-      renderAgendaText();
-      return;
-    }
     const archiveEdit = event.target.closest('[data-admin-archive-edit]');
     if (archiveEdit) { openContentEditor(archiveEdit.dataset.kind, archiveEdit.dataset.id); return; }
     const contentEdit = event.target.closest('[data-admin-content-edit]');
@@ -1104,11 +1122,28 @@ function renderHero(){
 function renderArticles(){const q=$('#globalSearch').value.trim().toLowerCase();const cat=$('#categoryFilter').value;let rows=state.articles.filter(a=>a.status==='published');if(cat!=='all')rows=rows.filter(a=>a.category===cat);if(q)rows=rows.filter(a=>(a.title+' '+a.excerpt+' '+a.category+' '+a.article_date).toLowerCase().includes(q));const sort=$('#sortFilter').value;if(sort==='oldest')rows.sort((a,b)=>a.article_date.localeCompare(b.article_date));else if(sort==='title')rows.sort((a,b)=>a.title.localeCompare(b.title,'id'));else rows.sort((a,b)=>b.article_date.localeCompare(a.article_date));$('#articleCards').innerHTML=rows.length?rows.map(articleCard).join(''):'<div class="empty col-span-full">Tidak ada artikel yang cocok.</div>'}
 function renderCalendar(target,month,large=false){
   const y=month.getFullYear(),m=month.getMonth(),first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7;
-  const dates=new Set([...state.articles.filter(a=>a.status==='published').map(a=>a.article_date),...state.media.map(x=>x.event_date),...state.documents.filter(x=>state.isAdmin||x.status==='published').map(x=>x.event_date),...state.links.map(x=>x.event_date)].filter(Boolean));
+  const records=[
+    ...state.articles.filter(a=>a.status==='published').map(a=>({date:a.article_date,type:'article',label:'Artikel'})),
+    ...state.media.map(x=>({date:x.event_date,type:'media',label:'Media/PDF'})),
+    ...state.documents.filter(x=>state.isAdmin||x.status==='published').map(x=>({date:x.event_date,type:'media',label:'Media/PDF'})),
+    ...state.links.map(x=>({date:x.event_date,type:'link',label:'Tautan'}))
+  ];
+  const datesByType=new Map();
+  records.filter(row=>row.date).forEach(row=>{
+    const key=String(row.date).slice(0,10);
+    if(!datesByType.has(key))datesByType.set(key,new Map());
+    datesByType.get(key).set(row.type,row.label);
+  });
   const names=new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric'}).format(first);
   let out=`<div class="cal-head"><button class="cal-arrow" data-cal-move="-1" aria-label="Bulan sebelumnya">‹</button><span>${names}</span><button class="cal-arrow" data-cal-move="1" aria-label="Bulan selanjutnya">›</button></div><div class="cal-grid">${['Sen','Sel','Rab','Kam','Jum','Sab','Min'].map(n=>`<span class="cal-dow">${n}</span>`).join('')}`;
   for(let i=0;i<offset;i++)out+='<span class="cal-day blank"></span>';
-  for(let d=1;d<=days;d++){const key=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,sel=dateKey(state.archiveDate)===key;out+=`<button class="cal-day ${dates.has(key)?'has':''} ${sel?'sel':''}" data-calendar-date="${key}" aria-label="${d} ${names}${dates.has(key)?', ada catatan':''}">${d}</button>`}
+  for(let d=1;d<=days;d++){
+    const key=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,sel=dateKey(state.archiveDate)===key,types=datesByType.get(key);
+    const typeList=types?[...types.keys()]:[];
+    const dots=typeList.map(type=>`<span class="calendar-day-dot ${type}" aria-hidden="true"></span>`).join('');
+    const typeLabel=types?[...types.values()].join(', '):'';
+    out+=`<button class="cal-day ${types?'has':''} ${sel?'sel':''}" data-calendar-date="${key}" aria-label="${d} ${names}${types?`, ${typeLabel}`:', tidak ada catatan'}"><span>${d}</span>${dots?`<span class="calendar-day-dots">${dots}</span>`:''}</button>`;
+  }
   out+='</div>';const el=$('#'+target);el.innerHTML=out;el.classList.toggle('calendar-large',large);siteEnhancements.renderCalendarActivities(month)
 }
 function renderDay(){
