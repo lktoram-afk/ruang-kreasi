@@ -97,11 +97,11 @@
           <p class="muted small">AI menyusun dari isi artikel dan keterangan media yang dipilih. Hasil harus kamu tinjau.</p>
           <label class="field-label" style="margin-top:13px">Jenis keluaran<select id="outputType" class="control"><option>Kliping</option><option>Jurnal</option><option>Kaleidoskop</option></select></label>
           <label class="field-label" style="margin-top:10px">Periode<select class="control" id="outputPeriod"></select></label>
-          <label class="field-label" style="margin-top:10px">Pilih artikel dan media (Ctrl/Cmd untuk lebih dari satu)<select class="control" id="sourceSelect" multiple size="7" aria-label="Pilih artikel dan media"></select></label>
-          <label class="consent-check"><input type="checkbox" id="aiConsent"><span>Saya setuju isi artikel dan metadata media yang dipilih dikirim ke Manus AI untuk membuat draf. File/foto tidak dikirim atau dianalisis secara visual; AI hanya untuk Super Admin.</span></label>
+          <label class="field-label" style="margin-top:10px">Pilih sampai 10 artikel dan 5 media (Ctrl/Cmd untuk memilih beberapa)<select class="control" id="sourceSelect" multiple size="7" aria-label="Pilih artikel dan media"></select></label>
+          <label class="consent-check"><input type="checkbox" id="aiConsent"><span>Saya setuju isi artikel dan metadata media yang dipilih dikirim ke Google Gemini untuk membuat draf. File/foto tidak dikirim atau dianalisis secara visual.</span></label>
           <button class="btn" style="width:100%;margin-top:13px" id="makeDraft" type="button">Buat draf AI</button>
-          <div class="notice">Draf tidak otomatis disimpan atau diterbitkan. Periksa fakta, nama, dan tanggal sebelum menyimpan.</div>
-          <div class="mt-5 border-t border-stone-200 pt-4"><h3 class="panel-heading">Draf tersimpan</h3><p class="muted small">Draf privat milik akun yang sedang masuk.</p><div id="savedStudioDrafts" class="studio-saved-list"><div class="empty">Masuk untuk melihat draf tersimpan.</div></div></div>
+          <div class="notice">Pengguna biasa dapat membuat maksimal 3 draf per hari; Super Admin tanpa batas. Hasil draf AI disimpan otomatis dan dihapus setelah 14 hari. Draf tidak diterbitkan otomatis; periksa fakta, nama, dan tanggal.</div>
+          <div class="mt-5 border-t border-stone-200 pt-4"><h3 class="panel-heading">Draf tersimpan</h3><p class="muted small">Draf privat milik akun yang sedang masuk. Draf AI akan terhapus otomatis setelah 14 hari.</p><div id="savedStudioDrafts" class="studio-saved-list"><div class="empty">Masuk untuk melihat draf tersimpan.</div></div></div>
         </section>
         <section class="panel">
           <div class="panel-head"><div><h3 style="font:700 21px var(--serif);margin:0">Pratinjau</h3><small class="muted">Klik isi untuk mengedit.</small></div><span id="draftStatus" class="status-pill">Belum dibuat</span></div>
@@ -162,7 +162,7 @@
   </main>
 </div>
 
-<div class="modal-backdrop" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle"><section class="modal"><div class="modal-head"><h2 id="authTitle">Masuk</h2><button class="close" data-close="authModal" aria-label="Tutup">×</button></div><form id="authForm" class="grid gap-3"><label class="field-label hide">Nama lengkap <input class="control" name="full_name" autocomplete="name" maxlength="120"></label><label class="field-label">Email <input class="control" name="email" type="email" required autocomplete="email"></label><label class="field-label">Kata sandi <input class="control" name="password" type="password" required minlength="8" autocomplete="current-password"></label><button class="btn" type="submit" id="authSubmit">Masuk</button><button class="text-btn" type="button" id="authModeToggle">Belum punya akun? Daftar</button><p class="muted small">Akun user digunakan untuk mengajukan permintaan media. Akun ini tidak otomatis menjadi Super Admin.</p></form></section></div>
+<div class="modal-backdrop" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle"><section class="modal"><div class="modal-head"><h2 id="authTitle">Masuk</h2><button class="close" data-close="authModal" aria-label="Tutup">×</button></div><form id="authForm" class="grid gap-3"><label class="field-label hide">Nama lengkap <input class="control" name="full_name" autocomplete="name" maxlength="120"></label><label class="field-label">Email <input class="control" name="email" type="email" required autocomplete="email"></label><label class="field-label">Kata sandi <input class="control" name="password" type="password" required minlength="8" autocomplete="current-password"></label><button class="btn" type="submit" id="authSubmit">Masuk</button><button class="text-btn" type="button" id="authModeToggle">Belum punya akun? Daftar</button><p class="muted small">Akun biasa dapat memakai Studio AI maksimal 3 kali sehari UTC dan mengajukan permintaan media. Akun ini tidak otomatis menjadi Super Admin.</p></form></section></div>
 <div class="modal-backdrop" id="articleModal" role="dialog" aria-modal="true" aria-labelledby="detailTitle"><section class="modal"><div class="modal-head"><h2 id="detailTitle">Artikel</h2><button class="close" data-close="articleModal" aria-label="Tutup">×</button></div><div id="detailContent"></div></section></div>
 <div class="modal-backdrop gallery-backdrop" id="galleryModal" role="dialog" aria-modal="true" aria-label="Galeri foto"><section class="gallery-modal"><button class="gallery-close" type="button" data-gallery-close aria-label="Tutup galeri">×</button><button class="gallery-nav gallery-prev" type="button" data-gallery-move="-1" aria-label="Foto sebelumnya">‹</button><figure><img id="galleryImage" alt=""><figcaption id="galleryCaption"></figcaption></figure><button class="gallery-nav gallery-next" type="button" data-gallery-move="1" aria-label="Foto selanjutnya">›</button><div id="galleryCounter" class="gallery-counter" aria-live="polite"></div><button class="btn gallery-request" type="button" id="galleryRequest">Minta berkas asli / ajukan permintaan</button></section></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -830,7 +830,7 @@ function createRuangKerjakuEnhancements({
       adminDraftOffset = 0;
       adminDraftHasMore = true;
       adminDraftError = '';
-      $('#adminDraftStatus').textContent = 'Memuat seluruh draf Super Admin…';
+      $('#adminDraftStatus').textContent = 'Memuat seluruh draf pengguna…';
     }
     adminDraftBusy = true;
     const button = $('#loadMoreAdminDrafts');
@@ -839,7 +839,8 @@ function createRuangKerjakuEnhancements({
       await loadAdminOwners();
       const pageSize = 50;
       const { data, error } = await supabase.from('studio_documents')
-        .select('id,owner_user_id,output_type,title,period_start,period_end,generation_status,generation_provider,created_at,updated_at')
+        .select('id,owner_user_id,output_type,title,period_start,period_end,generation_status,generation_provider,expires_at,created_at,updated_at')
+        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
         .order('updated_at', { ascending: false }).order('id', { ascending: true })
         .range(adminDraftOffset, adminDraftOffset + pageSize - 1);
       if (error) throw error;
@@ -877,7 +878,8 @@ function createRuangKerjakuEnhancements({
     else host.innerHTML = `<table class="data-table"><thead><tr><th>Draf</th><th>Pemilik</th><th>Jenis</th><th>Diperbarui</th><th>Aksi</th></tr></thead><tbody>${visible.map(row => {
       const owner = adminDraftOwners.get(String(row.owner_user_id)) || `Akun ${String(row.owner_user_id).slice(0, 8)}…`;
       const updated = dateValue(row.updated_at || row.created_at);
-      return `<tr><td><b>${esc(row.title)}</b><br><span class="file-row-meta">${esc(generationStatusLabel(row.generation_status))}</span></td><td>${esc(owner)}</td><td>${esc(typeLabel(row.output_type))}</td><td>${esc(safeDateLabel(updated))}</td><td><div class="draft-row-actions"><button class="btn soft small" type="button" data-admin-draft-edit="${esc(row.id)}">Edit</button><button class="btn outline small" type="button" data-admin-draft-delete="${esc(row.id)}">Hapus</button></div></td></tr>`;
+      const expiry = row.expires_at ? ` · dihapus ${esc(safeDateLabel(dateValue(row.expires_at)))}` : '';
+      return `<tr><td><b>${esc(row.title)}</b><br><span class="file-row-meta">${esc(generationStatusLabel(row.generation_status))}${expiry}</span></td><td>${esc(owner)}</td><td>${esc(typeLabel(row.output_type))}</td><td>${esc(safeDateLabel(updated))}</td><td><div class="draft-row-actions"><button class="btn soft small" type="button" data-admin-draft-edit="${esc(row.id)}">Edit</button><button class="btn outline small" type="button" data-admin-draft-delete="${esc(row.id)}">Hapus</button></div></td></tr>`;
     }).join('')}</tbody></table>`;
     if (more) more.classList.toggle('hide', !adminDraftHasMore);
   }
@@ -885,7 +887,7 @@ function createRuangKerjakuEnhancements({
   async function openAdminDraftEditor(id) {
     if (!state.isAdmin || !supabase) return;
     const { data, error } = await supabase.from('studio_documents')
-      .select('id,owner_user_id,output_type,title,period_start,period_end,content_html,content_text,generation_status,generation_provider,updated_at')
+      .select('id,owner_user_id,output_type,title,period_start,period_end,content_html,content_text,generation_status,generation_provider,expires_at,updated_at')
       .eq('id', id).maybeSingle();
     if (error || !data) { toast(error?.message || 'Draf tidak ditemukan atau tidak dapat dibaca.'); return; }
     editingDraft = data;
@@ -1058,7 +1060,7 @@ const demoLinks = [
   {id:'l3',title:'Folder arsip contoh',url:'https://drive.google.com',category:'Google Drive'}
 ];
 const demoTicker=['Satu hal baik hari ini layak disimpan.','Catatan yang rapi memudahkan cerita ditemukan kembali.','Pilih satu kegiatan untuk mulai merangkai jurnal.'];
-const state={user:null,role:null,isAdmin:false,articles:hasSupabaseConfig?[]:[...demoArticles],media:hasSupabaseConfig?[]:[...demoMedia],documents:[],documentsError:null,links:hasSupabaseConfig?[]:[...demoLinks],ticker:hasSupabaseConfig?[]:[...demoTicker],tickerRecords:[],studioDocs:[],currentDraftId:null,draftGeneratedByManus:false,aiConfigured:false,archiveDate:new Date(),month:new Date(new Date().getFullYear(),new Date().getMonth(),1),authMode:'signin',draftOriginal:'',requestMediaLabel:''};
+const state={user:null,role:null,isAdmin:false,articles:hasSupabaseConfig?[]:[...demoArticles],media:hasSupabaseConfig?[]:[...demoMedia],documents:[],documentsError:null,links:hasSupabaseConfig?[]:[...demoLinks],ticker:hasSupabaseConfig?[]:[...demoTicker],tickerRecords:[],studioDocs:[],currentDraftId:null,draftGeneratedByAI:false,aiConfigured:false,archiveDate:new Date(),month:new Date(new Date().getFullYear(),new Date().getMonth(),1),authMode:'signin',draftOriginal:'',requestMediaLabel:''};
 const pageInfo={home:['Ruang Kerjaku','Catatan, arsip, dan cerita dari pekerjaan sehari-hari.'],articles:['Artikel & dokumentasi','Bahan yang telah diterbitkan untuk dibaca publik.'],archive:['Arsip Digital','Temukan kembali kegiatan berdasarkan tanggal.'],media:['Media & dokumen','Foto, video, dan PDF yang telah diterbitkan.'],links:['Kumpulan tautan','Sumber yang kamu simpan untuk dibuka kembali.'],studio:['Studio AI','Rangkai bahan menjadi keluaran yang bisa ditinjau.'],requests:['Permintaan media','Ajukan permintaan foto atau video.'],admin:['Panel kontrol','Area pengelolaan khusus Super Admin.'],about:['Tentang ruang ini','Ruang kerja pribadi untuk menyimpan cerita.']};
 const $=s=>document.querySelector(s);const $$=s=>[...document.querySelectorAll(s)];
 function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -1071,7 +1073,7 @@ function dateKey(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>t.classList.remove('show'),2800)}
 function setView(name){
   if(name==='admin'&&!state.isAdmin){toast('Panel kontrol hanya untuk Super Admin.');name='home'}
-  if(name==='studio'&&!state.isAdmin){if(!state.user)showAuth();toast('Studio AI hanya untuk Super Admin.');return}
+  if(name==='studio'&&!state.user){showAuth();toast('Masuk untuk menggunakan Studio AI.');return}
   if(name==='requests'&&!state.user){showAuth();toast('Masuk dahulu untuk mengajukan permintaan media.');return}
   $$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));
   $$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
@@ -1217,28 +1219,47 @@ function sanitizeDraftHtml(html){
   const clean=parent=>{for(const node of [...parent.childNodes]){if(node.nodeType!==1)continue;const tag=node.tagName;if(['SCRIPT','STYLE','IFRAME','OBJECT','SVG','IMG','VIDEO','AUDIO'].includes(tag)){node.remove();continue}clean(node);if(!allowed.has(tag)){node.replaceWith(...node.childNodes);continue}for(const attr of [...node.attributes])node.removeAttribute(attr.name)}};clean(doc.body);return doc.body.innerHTML.slice(0,200000)
 }
 async function updateStudioRuntime(){
-  state.aiConfigured=false;
-  $('#homeAIStatus').textContent='AI tidak tersedia pada aplikasi statis';
-  $('#studioAIStatus').textContent='Koneksi server AI tidak digunakan';
+  state.aiConfigured=Boolean(supabase);
+  $('#homeAIStatus').textContent=!supabase?'Supabase belum dikonfigurasi':state.user?'Studio AI melalui Supabase':'Masuk untuk menggunakan Studio AI';
+  $('#studioAIStatus').textContent=!supabase?'Supabase belum dikonfigurasi':!state.user?'Masuk untuk menggunakan Gemini':state.isAdmin?'Super Admin · kuota tanpa batas':'Maksimal 3 draf per hari UTC';
 }
 async function generateStudioDraft(){
-  toast('Pembuatan draf AI membutuhkan layanan server rahasia dan tidak termasuk aplikasi statis dua file ini.');
+  if(!supabase){toast('Supabase belum dikonfigurasi.');return}
+  if(!state.user){showAuth();toast('Masuk terlebih dahulu untuk membuat draf AI.');return}
+  if(!$('#aiConsent').checked){toast('Setujui pengiriman isi sumber ke Google Gemini terlebih dahulu.');return}
+  const {articleIds,mediaIds}=selectedStudioSources();
+  if(!articleIds.length&&!mediaIds.length){toast('Pilih sedikitnya satu artikel atau media.');return}
+  const button=$('#makeDraft');button.disabled=true;$('#draftStatus').textContent='Menyusun draf…';
+  try{
+    const {data,error}=await supabase.functions.invoke('studio-generate',{body:{outputType:$('#outputType').value,period:$('#outputPeriod').value,articleIds,mediaIds,consent:true}});
+    if(error){
+      let message=error.message||'Google Gemini gagal membuat draf.';
+      if(error.context&&typeof error.context.clone==='function'){try{const body=await error.context.clone().json();if(body?.error)message=body.error}catch{}}
+      throw new Error(message)
+    }
+    if(typeof data?.content!=='string'||!data.content.trim()||typeof data.documentId!=='string')throw new Error('Draf tidak diterima atau belum tersimpan ke Supabase.');
+    const editor=$('#draftEditor');editor.innerHTML=sanitizeDraftHtml(aiTextToHtml(data.content));editor.dataset.outputStyle=$('#outputType').value;state.currentDraftId=data.documentId;state.draftGeneratedByAI=true;state.draftOriginal=editor.innerHTML;$('#draftStatus').textContent='Draf AI tersimpan · dapat diedit';
+    if(data.isUnlimited)$('#studioAIStatus').textContent='Gemini · pemakaian tanpa batas';
+    else if(Number.isInteger(data.usedToday)&&Number.isInteger(data.dailyLimit))$('#studioAIStatus').textContent=`Gemini · ${Math.max(0,data.dailyLimit-data.usedToday)} dari ${data.dailyLimit} draf tersisa hari ini`;
+    renderStudioPrintImages();await loadStudioDocuments();toast('Draf Gemini tersimpan otomatis dan akan dihapus setelah 14 hari.')
+  }catch(error){$('#draftStatus').textContent='Gagal membuat draf';toast(error.message||'Draf AI gagal dibuat. Pastikan Edge Function dan migration Supabase sudah diterapkan.')}
+  finally{button.disabled=false}
 }
 async function loadStudioDocuments(){
   if(!state.user||!supabase){state.studioDocs=[];renderSavedStudioDrafts();return}
-  try{const {data,error}=await supabase.from('studio_documents').select('id,owner_user_id,output_type,title,period_start,period_end,source_article_ids,source_media_ids,content_html,content_text,generation_status,generation_provider,created_at,updated_at').eq('owner_user_id',state.user.id).order('updated_at',{ascending:false}).limit(100);if(error)throw error;state.studioDocs=data||[];renderSavedStudioDrafts()}
+  try{const {data,error}=await supabase.from('studio_documents').select('id,owner_user_id,output_type,title,period_start,period_end,source_article_ids,source_media_ids,content_html,content_text,generation_status,generation_provider,expires_at,created_at,updated_at').eq('owner_user_id',state.user.id).or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`).order('updated_at',{ascending:false}).limit(100);if(error)throw error;state.studioDocs=data||[];renderSavedStudioDrafts()}
   catch(error){state.studioDocs=[];console.warn('Studio documents failed',{name:error?.name||'Error'});renderSavedStudioDrafts('Draf belum dapat dimuat. Periksa koneksi, tabel studio_documents, dan RLS.')}
 }
 function renderSavedStudioDrafts(errorText=''){
   const host=$('#savedStudioDrafts');if(!host)return;if(errorText){host.innerHTML=`<div class="notice">${esc(errorText)}</div>`;return}if(!state.user){host.innerHTML='<div class="empty">Masuk untuk melihat draf tersimpan.</div>';return}if(!state.studioDocs.length){host.innerHTML='<div class="empty">Belum ada draf tersimpan.</div>';return}
-  host.innerHTML=state.studioDocs.map(doc=>`<div class="studio-saved-row"><div><b>${esc(doc.title)}</b><small>${esc(doc.output_type)} · diperbarui ${dateLabel(String(doc.updated_at||doc.created_at||'').slice(0,10))}</small></div><div class="studio-saved-actions"><button class="btn soft small" type="button" data-load-studio="${esc(doc.id)}">Muat</button><button class="btn outline small" type="button" data-delete-studio="${esc(doc.id)}" aria-label="Hapus draf ${esc(doc.title)}">Hapus</button></div></div>`).join('')
+  host.innerHTML=state.studioDocs.map(doc=>`<div class="studio-saved-row"><div><b>${esc(doc.title)}</b><small>${esc(doc.output_type)} · diperbarui ${dateLabel(String(doc.updated_at||doc.created_at||'').slice(0,10))}${doc.expires_at?` · otomatis dihapus ${dateLabel(String(doc.expires_at).slice(0,10))}`:''}</small></div><div class="studio-saved-actions"><button class="btn soft small" type="button" data-load-studio="${esc(doc.id)}">Muat</button><button class="btn outline small" type="button" data-delete-studio="${esc(doc.id)}" aria-label="Hapus draf ${esc(doc.title)}">Hapus</button></div></div>`).join('')
 }
 function loadStudioDraft(id){
-  const doc=state.studioDocs.find(x=>String(x.id)===String(id));if(!doc||String(doc.owner_user_id)!==String(state.user?.id))return;const map={clipping:'Kliping',journal:'Jurnal',kaleidoscope:'Kaleidoskop'};$('#outputType').value=map[doc.output_type]||'Kliping';updateStudioOutputStyle();if(doc.period_start){const period=String(doc.period_start).slice(0,7);if([...$('#outputPeriod').options].some(option=>option.value===period))$('#outputPeriod').value=period}else $('#outputPeriod').value='all';$('#draftEditor').innerHTML=sanitizeDraftHtml(doc.content_html);state.currentDraftId=doc.id;state.draftGeneratedByManus=doc.generation_provider==='manus_ai';state.draftOriginal=$('#draftEditor').innerHTML;$('#draftStatus').textContent='Draf tersimpan · dapat diedit';const selected=new Set([...(doc.source_article_ids||[]).map(id=>`article:${id}`),...(doc.source_media_ids||[]).map(id=>`media:${id}`)]);for(const option of $('#sourceSelect').options)option.selected=selected.has(option.value);renderStudioPrintImages();toast('Draf dimuat. Edit lalu simpan untuk memperbarui.')
+  const doc=state.studioDocs.find(x=>String(x.id)===String(id));if(!doc||String(doc.owner_user_id)!==String(state.user?.id))return;const map={clipping:'Kliping',journal:'Jurnal',kaleidoscope:'Kaleidoskop'};$('#outputType').value=map[doc.output_type]||'Kliping';updateStudioOutputStyle();if(doc.period_start){const period=String(doc.period_start).slice(0,7);if([...$('#outputPeriod').options].some(option=>option.value===period))$('#outputPeriod').value=period}else $('#outputPeriod').value='all';$('#draftEditor').innerHTML=sanitizeDraftHtml(doc.content_html);state.currentDraftId=doc.id;state.draftGeneratedByAI=['gemini_ai','manus_ai'].includes(doc.generation_provider);state.draftOriginal=$('#draftEditor').innerHTML;$('#draftStatus').textContent='Draf tersimpan · dapat diedit';const selected=new Set([...(doc.source_article_ids||[]).map(id=>`article:${id}`),...(doc.source_media_ids||[]).map(id=>`media:${id}`)]);for(const option of $('#sourceSelect').options)option.selected=selected.has(option.value);renderStudioPrintImages();toast('Draf dimuat. Edit lalu simpan untuk memperbarui.')
 }
 async function saveStudioDraft(){
   if(!supabase){toast('Supabase belum aktif.');return}if(!state.user){showAuth();toast('Masuk untuk menyimpan draf secara pribadi.');return}const editor=$('#draftEditor'),contentHtml=sanitizeDraftHtml(editor.innerHTML),contentText=editor.innerText.trim().slice(0,100000);if(!contentText||contentText.includes('Pilih bahan di sebelah kiri, lalu buat draf untuk ditinjau.')){toast('Isi draf masih kosong. Buat draf AI atau ketik isi sendiri terlebih dahulu.');return}if(contentHtml.length>200000){toast('Isi draf melebihi batas penyimpanan.');return}
-  const source=selectedStudioSources(),typeMap={Kliping:'clipping',Jurnal:'journal',Kaleidoskop:'kaleidoscope'},periodValue=$('#outputPeriod').value;const title=(editor.querySelector('h1,h2,h3')?.textContent||`${$('#outputType').value} — ${$('#outputPeriod').selectedOptions[0]?.textContent||''}`).trim().slice(0,180);const periodStart=/^\d{4}-\d{2}$/.test(periodValue)?`${periodValue}-01`:null;const periodEnd=periodStart?dateKey(new Date(Number(periodValue.slice(0,4)),Number(periodValue.slice(5,7)),0)):null;const payload={owner_user_id:state.user.id,output_type:typeMap[$('#outputType').value]||'journal',title,period_start:periodStart,period_end:periodEnd,source_article_ids:source.articleIds,source_media_ids:source.mediaIds,content_html:contentHtml,content_text:contentText,generation_status:state.draftGeneratedByManus?'ready':'draft',generation_provider:state.draftGeneratedByManus?'manus_ai':'manual'};
+  const source=selectedStudioSources(),typeMap={Kliping:'clipping',Jurnal:'journal',Kaleidoskop:'kaleidoscope'},periodValue=$('#outputPeriod').value;const title=(editor.querySelector('h1,h2,h3')?.textContent||`${$('#outputType').value} — ${$('#outputPeriod').selectedOptions[0]?.textContent||''}`).trim().slice(0,180);const periodStart=/^\d{4}-\d{2}$/.test(periodValue)?`${periodValue}-01`:null;const periodEnd=periodStart?dateKey(new Date(Number(periodValue.slice(0,4)),Number(periodValue.slice(5,7)),0)):null;const payload={owner_user_id:state.user.id,output_type:typeMap[$('#outputType').value]||'journal',title,period_start:periodStart,period_end:periodEnd,source_article_ids:source.articleIds,source_media_ids:source.mediaIds,content_html:contentHtml,content_text:contentText,generation_status:state.draftGeneratedByAI?'ready':'draft',generation_provider:state.draftGeneratedByAI?'gemini_ai':'manual'};
   const button=$('#saveStudioDraft');button.disabled=true;try{if(state.currentDraftId){const {data,error}=await supabase.from('studio_documents').update(payload).eq('id',state.currentDraftId).eq('owner_user_id',state.user.id).select('id').maybeSingle();if(error)throw error;if(!data)throw new Error('Draf tidak ditemukan atau tidak lagi dapat diubah.')}else{const {data,error}=await supabase.from('studio_documents').insert(payload).select('id').single();if(error)throw error;state.currentDraftId=data.id}state.draftOriginal=editor.innerHTML;$('#draftStatus').textContent='Draf tersimpan · privat';toast('Draf tersimpan untuk akunmu.');await loadStudioDocuments()}catch(error){toast(error.message||'Draf gagal disimpan. Periksa RLS Supabase.')}finally{button.disabled=false}
 }
 async function deleteStudioDraft(id){
