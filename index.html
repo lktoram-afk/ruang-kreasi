@@ -1140,7 +1140,7 @@ function renderNotifications(){
 async function downloadApprovedRequest(requestId){
   if(!state.user||!supabase){showAuth();return}
   const {data,error}=await supabase.functions.invoke('media-request-download',{body:{requestId}});
-  if(error){let message=error.message||'Unduhan belum dapat disiapkan.';if(error.context&&typeof error.context.clone==='function'){try{const result=await error.context.clone().json();if(result?.error)message=result.error}catch{}}throw new Error(message)}
+  if(error){let message=error.message||'Unduhan belum dapat disiapkan.';if(error.context&&typeof error.context.clone==='function'){try{const result=await error.context.clone().json();if(result?.code==='NOT_FOUND')message='Fungsi unduhan belum di-deploy di Supabase. Admin perlu men-deploy Edge Function media-request-download.';else if(result?.error||result?.message)message=result.error||result.message}catch{}}throw new Error(message)}
   if(!Array.isArray(data?.files)||!data.files.length)throw new Error('Berkas asli belum tersedia untuk permintaan ini.');
   data.files.forEach(file=>{const link=document.createElement('a');link.href=safeUrl(file.url);link.download=String(file.name||'berkas-asli');link.target='_blank';link.rel='noopener noreferrer';document.body.append(link);link.click();link.remove()});
   toast(`Tautan unduh dibuat dan berlaku ${Math.floor((data.expiresInSeconds||900)/60)} menit.`);
